@@ -58,6 +58,7 @@ public class OpenRouterClient {
 
             // ---- Timeout / network / unknown errors ----
             log.error("OpenRouter call failed", e);
+
             return null; // fallback handled in service
         }
     }

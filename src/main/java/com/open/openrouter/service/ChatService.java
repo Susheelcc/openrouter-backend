@@ -24,6 +24,7 @@ public class ChatService {
 
     public ChatService(OpenRouterClient openRouterClient) {
         this.openRouterClient = openRouterClient;
+
     }
 
     public ChatResponse process(ChatRequest request) {
