@@ -22,6 +22,9 @@ public class ChatService {
     @Value("${openrouter.default-model}")
     private String defaultModel;
 
+    @Value("${openrouter.max-tokens:1024}")
+    private int maxTokens;
+
     public ChatService(OpenRouterClient openRouterClient) {
         this.openRouterClient = openRouterClient;
 
@@ -36,6 +39,7 @@ public class ChatService {
 
         OpenRouterRequest orRequest = new OpenRouterRequest();
         orRequest.setModel(model);
+        orRequest.setMax_tokens(maxTokens);
 
         OpenRouterRequest.Message msg = new OpenRouterRequest.Message();
         msg.setRole("user");

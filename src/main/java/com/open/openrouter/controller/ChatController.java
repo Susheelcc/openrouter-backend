@@ -26,5 +26,5 @@ public class ChatController {
 
         return chatService.process(request);
     }
-    
+
 }

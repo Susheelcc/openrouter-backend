@@ -1,14 +1,15 @@
 package com.open.openrouter.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+@Data
+public class LoginRequest {
 
+    @NotBlank(message = "username is required")
+    private String username;
 
-    @Data
-    public class LoginRequest {
-
-        private String username;
-
-        private String password;
-    }
+    @NotBlank(message = "password is required")
+    private String password;
+}
 

@@ -3,7 +3,7 @@ package com.open.openrouter.controller;
 import com.open.openrouter.dto.LoginRequest;
 import com.open.openrouter.dto.LoginResponse;
 import com.open.openrouter.service.AuthService;
-import jakarta.annotation.PostConstruct;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthService authService;
 
-    @PostMapping("/Login")
-    public LoginResponse login(@RequestBody LoginRequest request){
+    @PostMapping("/login")
+    public LoginResponse login(@Valid @RequestBody LoginRequest request){
         return authService.login(request);
     }
 }

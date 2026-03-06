@@ -9,6 +9,7 @@ import lombok.Data;
 public class OpenRouterRequest {
 
     private String model;
+    private Integer max_tokens;
     private List<Message> messages;
 
     @Data

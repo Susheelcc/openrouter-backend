@@ -8,6 +8,5 @@ public class ChatRequest {
 @NotBlank
 private String prompt;
 
-@NotBlank
 private String model;
 }

@@ -4,10 +4,12 @@ import com.open.openrouter.dto.OpenRouterRequest;
 import com.open.openrouter.dto.OpenRouterResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 
@@ -42,16 +44,28 @@ public class OpenRouterClient {
         } catch (WebClientResponseException e) {
 
             // ---- HTTP errors from OpenRouter ----
-            if (e.getStatusCode().value() == 402) {
-                log.error("OpenRouter 402 Payment Required");
-                throw new RuntimeException(
-                        "AI service unavailable: insufficient credits or invalid API key"
+            String upstreamBody = e.getResponseBodyAsString();
+
+            if (e.getStatusCode().value() == 401) {
+                log.error("OpenRouter 401 Unauthorized | body={}", upstreamBody);
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_GATEWAY,
+                        "OpenRouter rejected the API key (401). Check OPENROUTER_API_KEY."
                 );
             }
 
-            log.error("OpenRouter HTTP error: {}", e.getStatusCode());
-            throw new RuntimeException(
-                    "AI service error: " + e.getStatusCode()
+            if (e.getStatusCode().value() == 402) {
+                log.error("OpenRouter 402 Payment Required | body={}", upstreamBody);
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_GATEWAY,
+                        "OpenRouter credits unavailable (402). Check billing/credits."
+                );
+            }
+
+            log.error("OpenRouter HTTP error: {} | body={}", e.getStatusCode(), upstreamBody);
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_GATEWAY,
+                    "OpenRouter error: " + e.getStatusCode().value()
             );
 
         } catch (Exception e) {

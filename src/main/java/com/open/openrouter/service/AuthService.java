@@ -4,7 +4,9 @@ import com.open.openrouter.dto.LoginRequest;
 import com.open.openrouter.dto.LoginResponse;
 import com.open.openrouter.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +18,6 @@ public class AuthService {
 
             return new LoginResponse(token);
         }
-        throw new RuntimeException("Invalid Username or Password");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -18,6 +19,13 @@ public class ApikeyFilter extends OncePerRequestFilter {
 
     @Value("${app.security.api-key}")
     private String configuredApiKey;
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/auth");
+    }
+
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -25,16 +33,21 @@ public class ApikeyFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        String apiKey = request.getHeader("X-API-KEY");
+        String apiKey = request.getHeader("x-api-key");
 
-        // If key is missing OR wrong → reject
-        if (apiKey == null || !apiKey.equals(configuredApiKey)) {
+        // Missing API key is allowed so JWT auth can still proceed.
+        if (!StringUtils.hasText(apiKey)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // If key is present but wrong, reject immediately.
+        if (!apiKey.equals(configuredApiKey)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Invalid API Key");
             return;
         }
 
-        // If key is correct → authenticate
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(
                         "api-user",
@@ -43,7 +56,6 @@ public class ApikeyFilter extends OncePerRequestFilter {
                 );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         filterChain.doFilter(request, response);
     }
-    }
+}
